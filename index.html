@@ -362,28 +362,30 @@ document.getElementById("bookMeetingButton").addEventListener("click", function(
   button.disabled = true;
   button.textContent = "Booking...";
 
-fetch(SCRIPT_URL, {
-  method: "POST",
-  mode: "no-cors",
-  headers: {
-    "Content-Type": "application/x-www-form-urlencoded"
-  },
-  body:
-    "date=" + encodeURIComponent(date) +
-    "&time=" + encodeURIComponent(time) +
-    "&name=" + encodeURIComponent(name) +
-    "&email=" + encodeURIComponent(email)
-})
-.then(function() {
-  alert("You successfully booked an appointment!");
-  button.disabled = false;
-  button.textContent = "Book Meeting";
-})
-.catch(function(error) {
-  console.error(error);
-  alert("There was a problem booking the appointment.");
-  button.disabled = false;
-  button.textContent = "Book Meeting";
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body:
+      "date=" + encodeURIComponent(date) +
+      "&time=" + encodeURIComponent(time) +
+      "&name=" + encodeURIComponent(name) +
+      "&email=" + encodeURIComponent(email)
+  })
+  .then(function() {
+    alert("You successfully booked an appointment!");
+    button.disabled = false;
+    button.textContent = "Book Meeting";
+  })
+  .catch(function(error) {
+    console.error(error);
+    alert("There was a problem booking the appointment.");
+    button.disabled = false;
+    button.textContent = "Book Meeting";
+  });
+});
 });
 
 </script>
