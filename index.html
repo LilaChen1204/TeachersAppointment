@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book a Meeting</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+
+    #bookMeetingButton {
+      width: 100%;
+      padding: 16px;
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #bookMeetingButton:hover {
+      background: #333;
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      font-size: 16px;
+      margin-top: 8px;
+    }
+
+    .time {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0;
+      background: white;
+      border: 1px solid #aaa;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      text-align: left;
+    }
+
+    .time:hover {
+      background: #f0f0f0;
+    }
+
+    .time.selected {
+      background: #333;
+      color: white;
+    }
+
+    .time.booked {
+      background: #ddd;
+      color: #777;
+      cursor: not-allowed;
+    }
+
+    #bookingSummary {
+      margin-top: 25px;
+      padding: 15px;
+      border-radius: 8px;
+      background: #f5f5f5;
+      display: none;
+    }
+
+    #bookButton {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 17px;
+      cursor: pointer;
+    }
+
+    #message {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Book a Meeting</h1>
+
+  <h2>1. Choose a date</h2>
+
+  <input type="date" id="date">
+
+
+  <div id="timeSection" style="display: none;">
+
+    <h2>2. Choose a time</h2>
+
+    <div id="dayName"></div>
+
+    <div id="timeOptions"></div>
+
+  </div>
+
+
+  <div id="bookingSummary">
+
+    <strong>Your selected meeting:</strong>
+
+    <p id="summaryText"></p>
+
+  </div>
+
+
+  <div id="message"></div>
+
+
+  <script>
+
+    const dateInput = document.getElementById("date");
+    const timeSection = document.getElementById("timeSection");
+    const dayName = document.getElementById("dayName");
+    const timeOptions = document.getElementById("timeOptions");
+
+    const bookingSummary =
+      document.getElementById("bookingSummary");
+
+    const summaryText =
+      document.getElementById("summaryText");
+
+    const message =
+      document.getElementById("message");
+
+
+    let selectedDate = null;
+    let selectedTime = null;
+
+
+    // Temporary local bookings.
+    // Later this will be replaced by a real database.
+    const bookedTimes = {};
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwHFavQwQPeGirBeLbXDxkzcna8y9YV54ECKyaZ7UlcxHGjLFIKZ4CXRQzJ__9_mJY/exec";
+    dateInput.addEventListener("change", function() {
+
+      selectedDate = this.value;
+
+      selectedTime = null;
+
+      bookingSummary.style.display = "none";
+
+      message.textContent = "";
+
+      timeOptions.innerHTML = "";
+
+
+      const date = new Date(
+        selectedDate + "T00:00:00"
+      );
+
+
+      const days = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ];
+
+
+      const day = days[date.getDay()];
+
+      dayName.textContent = day;
+
+
+      let times = [];
+
+
+      if (day === "Monday") {
+
+        times = [
+          "Morning (before 1st class)",
+          "Lunch",
+          "FIT",
+          "After school"
+        ];
+
+      }
+
+      else if (day === "Tuesday") {
+
+        times = [
+          "Morning (before 1st class)",
+          "Lunch",
+          "FIT",
+          "After school"
+        ];
+
+      }
+
+      else if (day === "Wednesday") {
+
+        times = [
+          "Morning (before 1st class)",
+          "Lunch",
+          "After school"
+        ];
+
+      }
+
+      else if (day === "Thursday") {
+
+        times = [
+          "Morning (before 1st class)",
+          "Lunch",
+          "FIT",
+          "After school"
+        ];
+
+      }
+
+      else if (day === "Friday") {
+
+        times = [
+          "Morning (before 1st class)",
+          "Lunch",
+          "FIT",
+          "After school"
+        ];
+
+      }
+
+      else {
+
+        timeSection.style.display = "block";
+
+        dayName.textContent =
+          day + " — No meetings available";
+
+        return;
+
+      }
+
+
+      timeSection.style.display = "block";
+
+
+      times.forEach(function(time) {
+
+        const button =
+          document.createElement("button");
+
+        button.className = "time";
+
+
+        const bookingKey =
+          selectedDate + "|" + time;
+
+
+        if (bookedTimes[bookingKey]) {
+
+          button.textContent =
+            time + " — Booked";
+
+          button.classList.add("booked");
+
+          button.disabled = true;
+
+        }
+
+        else {
+
+          button.textContent = time;
+
+
+          button.addEventListener("click", function() {
+
+            document
+              .querySelectorAll(".time")
+              .forEach(function(otherButton) {
+
+                otherButton.classList.remove("selected");
+
+              });
+
+
+            button.classList.add("selected");
+
+            selectedTime = time;
+
+
+            const readableDate =
+              date.toLocaleDateString(
+                "en-US",
+                {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
+                }
+              );
+
+
+            summaryText.textContent =
+              readableDate +
+              " — " +
+              selectedTime;
+
+
+            bookingSummary.style.display =
+              "block";
+
+
+            message.textContent = "";
+
+          });
+
+        }
+
+      timeOptions.appendChild(button);
+
+    });
+
+  });
+
+window.addEventListener("DOMContentLoaded", function() {
+  document.getElementById("bookMeetingButton").addEventListener("click", function() {
+    const date = document.getElementById("date").value;
+    const name = document.getElementById("studentName").value;
+    const email = document.getElementById("studentEmail").value;
+
+    if (!date || !name || !email) {
+      alert("Please enter your name, email, and select a date and time.");
+      return;
+    }
+
+    const selectedTime = document.querySelector(".time.selected");
+
+    if (!selectedTime) {
+      alert("Please select a time.");
+      return;
+    }
+
+    const time = selectedTime.textContent;
+
+    const button = document.getElementById("bookMeetingButton");
+    button.disabled = true;
+    button.textContent = "Booking...";
+
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body:
+        "date=" + encodeURIComponent(date) +
+        "&time=" + encodeURIComponent(time) +
+        "&name=" + encodeURIComponent(name) +
+        "&email=" + encodeURIComponent(email)
+    })
+    .then(function() {
+      alert("You successfully booked an appointment!");
+      button.disabled = false;
+      button.textContent = "Book Meeting";
+    })
+    .catch(function(error) {
+      console.error(error);
+      alert("There was a problem booking the appointment.");
+      button.disabled = false;
+      button.textContent = "Book Meeting";
+    });
+  });
+});
+
+</script>
+<div id="bookingForm" style="margin-top: 30px;">
+
+  <h2>Book a Meeting</h2>
+
+  <label for="studentName">Your name:</label><br>
+  <input
+    type="text"
+    id="studentName"
+    placeholder="Your name"
+  ><br><br>
+
+  <label for="studentEmail">Email:</label><br>
+  <input
+    type="email"
+    id="studentEmail"
+    placeholder="Your email"
+  ><br><br>
+
+  <button id="bookMeetingButton">
+    Book Meeting
+  </button>
+
+  <p id="bookingMessage"></p>
+
+</div>
+
+</body>
+</html>
